@@ -32,6 +32,8 @@ public:
   CORBA::Boolean stopImpedanceController(const char *i_name_);
   CORBA::Boolean startWholeBodyMasterSlave();
   CORBA::Boolean stopWholeBodyMasterSlave();
+
+  CORBA::Boolean changeCop( CORBA::Double rleg_x, CORBA::Double rleg_y, CORBA::Double lleg_x, CORBA::Double lleg_y,  CORBA::Double tm);
   //
   //
   void setComp(AutoStabilizer *i_comp);
