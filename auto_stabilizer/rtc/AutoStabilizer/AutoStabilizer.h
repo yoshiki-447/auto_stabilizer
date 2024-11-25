@@ -127,6 +127,11 @@ protected:
     std::vector<RTC::TimedDoubleSeq> m_actEEWrench_; // Generate World frame. EndEffector origin. 要素数及び順番はgaitParam_.eeNameと同じ. ロボットが受ける力
     std::vector<std::unique_ptr<RTC::OutPort<RTC::TimedDoubleSeq> > > m_actEEWrenchOut_;
 
+    RTC::TimedDoubleSeq m_rh_wrench_;
+    RTC::OutPort<RTC::TimedDoubleSeq> m_rh_wrenchOut_;
+    RTC::TimedDoubleSeq m_lh_wrench_;
+    RTC::OutPort<RTC::TimedDoubleSeq> m_lh_wrenchOut_;
+    
     AutoStabilizerService_impl m_service0_;
     RTC::CorbaPort m_AutoStabilizerServicePort_;
 

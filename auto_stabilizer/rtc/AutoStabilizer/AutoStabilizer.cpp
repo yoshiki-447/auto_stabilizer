@@ -58,6 +58,9 @@ AutoStabilizer::Ports::Ports() :
   m_strideLimitationHullOut_("strideLimitationHullOut", m_strideLimitationHull_),
   m_cpViewerLogOut_("cpViewerLogOut", m_cpViewerLog_),
 
+  m_rh_wrenchOut_("rh_wrenchOut", m_rh_wrench_),
+  m_lh_wrenchOut_("lh_wrenchOut", m_lh_wrench_),
+
   m_AutoStabilizerServicePort_("AutoStabilizerService"),
 
   m_RobotHardwareServicePort_("RobotHardwareService"){
@@ -105,6 +108,10 @@ RTC::ReturnCode_t AutoStabilizer::onInitialize(){
   this->addOutPort("steppableRegionNumLogOut", this->ports_.m_steppableRegionNumLogOut_);
   this->addOutPort("strideLimitationHullOut", this->ports_.m_strideLimitationHullOut_);
   this->addOutPort("cpViewerLogOut", this->ports_.m_cpViewerLogOut_);
+
+  this->addOutPort("rh_wrenchOut", this->ports_.m_rh_wrenchOut_);
+  this->addOutPort("lh_wrenchOut", this->ports_.m_lh_wrenchOut_);
+  
   this->ports_.m_AutoStabilizerServicePort_.registerProvider("service0", "AutoStabilizerService", this->ports_.m_service0_);
   this->addPort(this->ports_.m_AutoStabilizerServicePort_);
   this->ports_.m_RobotHardwareServicePort_.registerConsumer("service0", "RobotHardwareService", this->ports_.m_robotHardwareService0_);
@@ -837,6 +844,18 @@ bool AutoStabilizer::writeOutPortData(AutoStabilizer::Ports& ports, const AutoSt
     }
   }
 
+  ports.m_rh_wrench_.tm = ports.m_qRef_.tm;
+  ports.m_rh_wrench_.data.length(6);
+  for(int j=0;j<6;j++) {
+    ports.m_rh_wrench_.data[j] = gaitParam.refEEWrench[2][j];
+  }
+  ports.m_rh_wrenchOut_.write();
+  
+  ports.m_lh_wrench_.tm = ports.m_qRef_.tm;
+  ports.m_lh_wrench_.data.length(6);
+  for(int j=0;j<6;j++) ports.m_lh_wrench_.data[j] = gaitParam.refEEWrench[3][j];
+  ports.m_lh_wrenchOut_.write();
+  
   // only for logger. (IDLE時の出力や、モード遷移時の連続性はてきとうで良い)
   if(mode.isABCRunning()){
     ports.m_genCog_.tm = ports.m_qRef_.tm;
