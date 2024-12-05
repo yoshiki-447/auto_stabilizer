@@ -112,6 +112,11 @@ protected:
     auto_stabilizer_msgs::TimedLandingPosition m_landingHeight_; // 着地姿勢. 支持脚を水平にした座標系
     RTC::InPort<auto_stabilizer_msgs::TimedLandingPosition> m_landingHeightIn_;
 
+    RTC::TimedDoubleSeq m_world_rhsensorin_;
+    RTC::InPort<RTC::TimedDoubleSeq> m_world_rhsensorIn_;
+    RTC::TimedDoubleSeq m_world_lhsensorin_;
+    RTC::InPort<RTC::TimedDoubleSeq> m_world_lhsensorIn_;
+    
     RTC::TimedDoubleSeq m_q_;
     RTC::OutPort<RTC::TimedDoubleSeq> m_qOut_;
     RTC::TimedDoubleSeq m_genTau_;
@@ -176,6 +181,12 @@ protected:
     RTC::OutPort<RTC::TimedDoubleSeq> m_cpViewerLogOut_; // for log
     std::vector<RTC::TimedDoubleSeq> m_tgtEEWrench_; // Generate World frame. EndEffector origin. 要素数及び順番はgaitParam_.eeNameと同じ. ロボットが受ける力
     std::vector<std::unique_ptr<RTC::OutPort<RTC::TimedDoubleSeq> > > m_tgtEEWrenchOut_;
+
+    RTC::TimedDoubleSeq m_world_rhsensorout_;
+    RTC::OutPort<RTC::TimedDoubleSeq> m_world_rhsensorOut_;
+    RTC::TimedDoubleSeq m_world_lhsensorout_;
+    RTC::OutPort<RTC::TimedDoubleSeq> m_world_lhsensorOut_;
+    
   };
   Ports ports_;
 

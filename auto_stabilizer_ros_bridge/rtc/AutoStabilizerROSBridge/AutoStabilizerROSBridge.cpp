@@ -4,7 +4,10 @@ AutoStabilizerROSBridge::AutoStabilizerROSBridge(RTC::Manager* manager):
   RTC::DataFlowComponentBase(manager),
   m_steppableRegionOut_("steppableRegionOut", m_steppableRegion_),
   m_landingHeightOut_("landingHeightOut", m_landingHeight_),
-  m_landingTargetIn_("landingTargetIn", m_landingTarget_)
+  m_landingTargetIn_("landingTargetIn", m_landingTarget_),
+
+  m_offworldrhsensorOut_("offworldrhsensorOut", m_offworldrhsensor_),
+  m_offworldlhsensorOut_("offworldlhsensorOut", m_offworldlhsensor_)
 {
 }
 
@@ -13,11 +16,18 @@ RTC::ReturnCode_t AutoStabilizerROSBridge::onInitialize(){
   addOutPort("landingHeightOut", m_landingHeightOut_);
   addInPort("landingTargetIn", m_landingTargetIn_);
 
+  addOutPort("offworldrhsensorOut", m_offworldrhsensorOut_);
+  addOutPort("offworldlhsensorOut", m_offworldlhsensorOut_);
+
   ros::NodeHandle pnh("~");
+  ros::NodeHandle nh("");
 
   steppable_region_sub_ = pnh.subscribe("steppable_region", 1, &AutoStabilizerROSBridge::onSteppableRegionCB, this);
   landing_height_sub_ = pnh.subscribe("landing_height", 1, &AutoStabilizerROSBridge::onLandingHeightCB, this);
   landing_target_pub_ = pnh.advertise<auto_stabilizer_msgs::LandingPosition>("landing_target", 1);
+
+  offworld_rhsensor_sub_ = pnh.subscribe("off_world_rhsensor", 1, &AutoStabilizerROSBridge::offWorldrhSensorCB, this);
+  offworld_lhsensor_sub_ = pnh.subscribe("off_world_lhsensor", 1, &AutoStabilizerROSBridge::offWorldlhSensorCB, this);
 
   return RTC::RTC_OK;
 }
@@ -69,6 +79,28 @@ void AutoStabilizerROSBridge::onLandingHeightCB(const auto_stabilizer_msgs::Land
   m_landingHeight_.data.nz = msg->nz;
   m_landingHeight_.data.l_r = msg->l_r;
   m_landingHeightOut_.write();
+}
+
+void AutoStabilizerROSBridge::offWorldrhSensorCB(const geometry_msgs::WrenchStamped::ConstPtr& msg) {
+  m_offworldrhsensor_.data.length(6);
+  m_offworldrhsensor_.data[0] = msg->wrench.force.x;
+  m_offworldrhsensor_.data[1] = msg->wrench.force.y;
+  m_offworldrhsensor_.data[2] = msg->wrench.force.z;
+  m_offworldrhsensor_.data[3] = msg->wrench.torque.x;
+  m_offworldrhsensor_.data[4] = msg->wrench.torque.y;
+  m_offworldrhsensor_.data[5] = msg->wrench.torque.z;
+  m_offworldrhsensorOut_.write();
+}
+
+void AutoStabilizerROSBridge::offWorldlhSensorCB(const geometry_msgs::WrenchStamped::ConstPtr& msg) {
+  m_offworldlhsensor_.data.length(6);
+  m_offworldlhsensor_.data[0] = msg->wrench.force.x;
+  m_offworldlhsensor_.data[1] = msg->wrench.force.y;
+  m_offworldlhsensor_.data[2] = msg->wrench.force.z;
+  m_offworldlhsensor_.data[3] = msg->wrench.torque.x;
+  m_offworldlhsensor_.data[4] = msg->wrench.torque.y;
+  m_offworldlhsensor_.data[5] = msg->wrench.torque.z;
+  m_offworldlhsensorOut_.write();
 }
 
 static const char* AutoStabilizerROSBridge_spec[] = {

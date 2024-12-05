@@ -61,6 +61,12 @@ AutoStabilizer::Ports::Ports() :
   m_rh_wrenchOut_("rh_wrenchOut", m_rh_wrench_),
   m_lh_wrenchOut_("lh_wrenchOut", m_lh_wrench_),
 
+  m_world_rhsensorIn_("offworldrhsensorIn", m_world_rhsensorin_),
+  m_world_lhsensorIn_("offworldlhsensorIn", m_world_lhsensorin_),
+  
+  m_world_rhsensorOut_("offworldrhsensorOut", m_world_rhsensorout_),
+  m_world_lhsensorOut_("offworldlhsensorOut", m_world_lhsensorout_),
+
   m_AutoStabilizerServicePort_("AutoStabilizerService"),
 
   m_RobotHardwareServicePort_("RobotHardwareService"){
@@ -111,6 +117,12 @@ RTC::ReturnCode_t AutoStabilizer::onInitialize(){
 
   this->addOutPort("rh_wrenchOut", this->ports_.m_rh_wrenchOut_);
   this->addOutPort("lh_wrenchOut", this->ports_.m_lh_wrenchOut_);
+
+  this->addOutPort("offworldrhsensorOut", this->ports_.m_world_rhsensorOut_);
+  this->addOutPort("offworldlhsensorOut", this->ports_.m_world_lhsensorOut_);
+
+  this->addInPort("offworldrhsensorIn", this->ports_.m_world_rhsensorIn_);
+  this->addInPort("offworldlhsensorIn", this->ports_.m_world_lhsensorIn_);
   
   this->ports_.m_AutoStabilizerServicePort_.registerProvider("service0", "AutoStabilizerService", this->ports_.m_service0_);
   this->addPort(this->ports_.m_AutoStabilizerServicePort_);
@@ -344,6 +356,15 @@ RTC::ReturnCode_t AutoStabilizer::onInitialize(){
 // static function
 bool AutoStabilizer::readInPortData(const double& dt, const GaitParam& gaitParam, const AutoStabilizer::ControlMode& mode, AutoStabilizer::Ports& ports, cnoid::BodyPtr refRobotRaw, cnoid::BodyPtr actRobotRaw, std::vector<cnoid::Vector6>& refEEWrenchOrigin, std::vector<cpp_filters::TwoPointInterpolatorSE3>& refEEPoseRaw, std::vector<GaitParam::Collision>& selfCollision, std::vector<std::vector<cnoid::Vector3> >& steppableRegion, std::vector<double>& steppableHeight, double& relLandingHeight, cnoid::Vector3& relLandingNormal){
   bool qRef_updated = false;
+
+  if(ports.m_world_rhsensorIn_.isNew()){
+    ports.m_world_rhsensorIn_.read();
+  }
+
+  if(ports.m_world_lhsensorIn_.isNew()){
+    ports.m_world_lhsensorIn_.read();
+  }
+  
   if(ports.m_qRefIn_.isNew()){
     ports.m_qRefIn_.read();
     if(ports.m_qRef_.data.length() == refRobotRaw->numJoints()){
@@ -855,6 +876,20 @@ bool AutoStabilizer::writeOutPortData(AutoStabilizer::Ports& ports, const AutoSt
   ports.m_lh_wrench_.data.length(6);
   for(int j=0;j<6;j++) ports.m_lh_wrench_.data[j] = gaitParam.refEEWrench[3][j];
   ports.m_lh_wrenchOut_.write();
+
+  ports.m_world_rhsensorout_.tm = ports.m_qRef_.tm;
+  ports.m_world_rhsensorout_.data.length(6);
+  for(int j=0;j<ports.m_world_rhsensorin_.data.length();j++) {
+    ports.m_world_rhsensorout_.data[j] = ports.m_world_rhsensorin_.data[j];
+  }
+  ports.m_world_rhsensorOut_.write();
+
+  ports.m_world_lhsensorout_.tm = ports.m_qRef_.tm;
+  ports.m_world_lhsensorout_.data.length(6);
+  for(int j=0;j<ports.m_world_lhsensorin_.data.length();j++) {
+    ports.m_world_lhsensorout_.data[j] = ports.m_world_lhsensorin_.data[j];
+  }
+  ports.m_world_lhsensorOut_.write();
   
   // only for logger. (IDLE時の出力や、モード遷移時の連続性はてきとうで良い)
   if(mode.isABCRunning()){

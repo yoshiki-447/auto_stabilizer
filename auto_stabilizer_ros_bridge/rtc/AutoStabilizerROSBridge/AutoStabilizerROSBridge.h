@@ -10,6 +10,8 @@
 #include <auto_stabilizer_msgs/SteppableRegion.h>
 #include <auto_stabilizer_msgs/LandingPosition.h>
 
+#include <geometry_msgs/WrenchStamped.h>
+
 #include <ros/ros.h>
 
 class AutoStabilizerROSBridge : public RTC::DataFlowComponentBase{
@@ -27,6 +29,15 @@ protected:
   ros::Subscriber landing_height_sub_;
   auto_stabilizer_msgs::TimedLandingPosition m_landingHeight_;
   RTC::OutPort <auto_stabilizer_msgs::TimedLandingPosition> m_landingHeightOut_;
+
+  ros::Subscriber  offworld_rhsensor_sub_;
+  RTC::TimedDoubleSeq m_offworldrhsensor_;
+  RTC::OutPort<RTC::TimedDoubleSeq> m_offworldrhsensorOut_;
+
+  ros::Subscriber  offworld_lhsensor_sub_;
+  RTC::TimedDoubleSeq m_offworldlhsensor_;
+  RTC::OutPort<RTC::TimedDoubleSeq> m_offworldlhsensorOut_;
+  
 public:
   AutoStabilizerROSBridge(RTC::Manager* manager);
   virtual RTC::ReturnCode_t onInitialize();
@@ -34,6 +45,9 @@ public:
 
   void onSteppableRegionCB(const auto_stabilizer_msgs::SteppableRegion::ConstPtr& msg);
   void onLandingHeightCB(const auto_stabilizer_msgs::LandingPosition::ConstPtr& msg);
+
+  void offWorldrhSensorCB(const geometry_msgs::WrenchStamped::ConstPtr& msg);
+  void offWorldlhSensorCB(const geometry_msgs::WrenchStamped::ConstPtr& msg);
 
 };
 
