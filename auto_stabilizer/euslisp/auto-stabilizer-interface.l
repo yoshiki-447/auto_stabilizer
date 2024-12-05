@@ -8,6 +8,9 @@
   :autostabilizerservice_setautostabilizerparam :autostabilizerservice_getautostabilizerparam)
 
 (defmethod rtm-ros-robot-interface
+  (:change-cop
+   (rleg_x rleg_y lleg_x lleg_y tm)
+   (send self :autoStabilizerService_changeCop :rleg_x rleg_x :rleg_y rleg_y :lleg_x lleg_x :lleg_y lleg_y :tm tm))  
   (:start-auto-balancer
    ()
    (send self :autostabilizerservice_startAutoBalancer))

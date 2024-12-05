@@ -352,6 +352,8 @@ module OpenHRP
      */
     boolean getAutoStabilizerParam(out AutoStabilizerParam i_param);
 
+    boolean changeCop(in double rleg_x, in double rleg_y, in double lleg_x, in double lleg_y, in double tm);
+
     /**
      * @struct FootstepState
      * @brief Foot step state.

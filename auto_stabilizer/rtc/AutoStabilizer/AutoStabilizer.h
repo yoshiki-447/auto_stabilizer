@@ -70,6 +70,8 @@ public:
   bool startWholeBodyMasterSlave();
   bool stopWholeBodyMasterSlave();
 
+  bool changeCop(const double& rleg_x, const double& rleg_y, const double& lleg_x, const double& lleg_y, const double& tm);
+
 protected:
   std::mutex mutex_;
 

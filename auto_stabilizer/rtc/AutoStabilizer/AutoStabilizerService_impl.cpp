@@ -110,3 +110,8 @@ void AutoStabilizerService_impl::setComp(AutoStabilizer *i_comp)
 {
   this->comp_ = i_comp;
 }
+
+CORBA::Boolean AutoStabilizerService_impl::changeCop(CORBA::Double rleg_x, CORBA::Double rleg_y, CORBA::Double lleg_x, CORBA::Double lleg_y,  CORBA::Double tm)
+{
+  return this->comp_->changeCop(rleg_x, rleg_y, lleg_x, lleg_y,  tm);
+}

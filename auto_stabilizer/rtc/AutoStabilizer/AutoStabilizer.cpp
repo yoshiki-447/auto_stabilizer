@@ -1015,6 +1015,27 @@ RTC::ReturnCode_t AutoStabilizer::onDeactivated(RTC::UniqueId ec_id){
 }
 RTC::ReturnCode_t AutoStabilizer::onFinalize(){ return RTC::RTC_OK; }
 
+//
+bool AutoStabilizer::changeCop(const double& rleg_x, const double& rleg_y, const double& lleg_x, const double& lleg_y, const double& tm){
+  // std::lock_guard<std::mutex> guard(this->mutex_);
+  cnoid::Vector3 rleg_copOffset = cnoid::Vector3::Zero();
+  cnoid::Vector3 lleg_copOffset = cnoid::Vector3::Zero();
+  rleg_copOffset[0] = rleg_x;
+  rleg_copOffset[1] = rleg_y;
+  lleg_copOffset[0] = lleg_x;
+  lleg_copOffset[1] = lleg_y;
+  if(rleg_copOffset != this->gaitParam_.copOffset[0].getGoal()) {
+    if(this->mode_.isABCRunning()) this->gaitParam_.copOffset[0].setGoal(rleg_copOffset, tm); // t[s]で補間
+    else this->gaitParam_.copOffset[0].reset(rleg_copOffset);
+  }
+  if(lleg_copOffset != this->gaitParam_.copOffset[1].getGoal()) {
+    if(this->mode_.isABCRunning()) this->gaitParam_.copOffset[1].setGoal(lleg_copOffset, tm); // t[s]で補間
+    else this->gaitParam_.copOffset[1].reset(lleg_copOffset);
+  }
+  return true;
+}
+//
+
 bool AutoStabilizer::goPos(const double& x, const double& y, const double& th){
   std::lock_guard<std::mutex> guard(this->mutex_);
   if(this->mode_.isABCRunning()){
